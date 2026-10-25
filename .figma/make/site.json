@@ -1,0 +1,14 @@
+{
+  "title": "Daud Ahmad | Dispensing Technician",
+  "description": "Daud Ahmad's professional portfolio as a Dispensing Technician.",
+  "icons": {
+    "icon": "/favicon.svg"
+  },
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="9" fill="#510D19" />
+  <rect x="2" y="2" width="60" height="60" rx="7" fill="none" stroke="#B89A68" stroke-width="1.5" />
+  <path d="M11 50.5h42" fill="none" stroke="#B89A68" stroke-width="1" opacity=".75" />
+  <text x="32" y="43" fill="#D8B77B" font-family="Georgia, 'Times New Roman', serif" font-size="31" font-weight="600" letter-spacing="-3.5" text-anchor="middle">DA</text>
+</svg>
