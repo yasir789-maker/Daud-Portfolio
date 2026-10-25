@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import pharmacistImage from './assets/Pharmacist.png'
 import profileImage from './assets/pharmacy.jpg'
 import hospitalImage from './assets/Hospital.jpg'
@@ -25,6 +25,9 @@ const Cross = () => <span className="ornament" aria-hidden="true">✦</span>
 function Header() {
   const [open, setOpen] = useState(false)
   const [active, setActive] = useState('home')
+  const menuButtonRef = useRef<HTMLButtonElement>(null)
+  const closeButtonRef = useRef<HTMLButtonElement>(null)
+  const mobileMenuRef = useRef<HTMLDivElement>(null)
   const links = [
     { label: 'Home', id: 'home' },
     { label: 'About', id: 'about' },
@@ -52,6 +55,52 @@ function Header() {
     sections.forEach((section) => observer.observe(section))
     return () => observer.disconnect()
   }, [])
+
+  useEffect(() => {
+    if (!open) return
+
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    closeButtonRef.current?.focus()
+
+    const closeAndRestoreFocus = () => {
+      setOpen(false)
+      menuButtonRef.current?.focus()
+    }
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        closeAndRestoreFocus()
+        return
+      }
+
+      if (event.key !== 'Tab') return
+      const focusable = mobileMenuRef.current?.querySelectorAll<HTMLElement>(
+        'a[href]:not([tabindex="-1"]), button:not([disabled]):not([tabindex="-1"])',
+      )
+      if (!focusable?.length) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+    const handleResize = () => {
+      if (window.innerWidth > 960) setOpen(false)
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    window.addEventListener('resize', handleResize)
+    return () => {
+      document.body.style.overflow = previousOverflow
+      document.removeEventListener('keydown', handleKeyDown)
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [open])
 
   const handleNavigation = (id: string) => {
     setActive(id)
@@ -85,14 +134,50 @@ function Header() {
       </a>
       <button
         className={`menu-btn${open ? ' is-open' : ''}`}
-        onClick={() => setOpen(!open)}
+        ref={menuButtonRef}
+        onClick={() => setOpen((isOpen) => !isOpen)}
         aria-expanded={open}
         aria-controls="mobile-navigation"
         aria-label={open ? 'Close navigation' : 'Open navigation'}
       >
         <span /><span />
       </button>
-      <div id="mobile-navigation" className={`mobile-menu${open ? ' open' : ''}`} aria-hidden={!open}>
+      <button
+        className={`mobile-menu-backdrop${open ? ' open' : ''}`}
+        type="button"
+        aria-label="Close navigation menu"
+        tabIndex={open ? 0 : -1}
+        aria-hidden={!open}
+        onClick={() => {
+          setOpen(false)
+          menuButtonRef.current?.focus()
+        }}
+      />
+      <div
+        id="mobile-navigation"
+        ref={mobileMenuRef}
+        className={`mobile-menu${open ? ' open' : ''}`}
+        aria-hidden={!open}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Mobile navigation"
+      >
+        <div className="mobile-menu-heading">
+          <span>MENU</span>
+          <button
+            ref={closeButtonRef}
+            className="mobile-close"
+            type="button"
+            aria-label="Close navigation"
+            tabIndex={open ? 0 : -1}
+            onClick={() => {
+              setOpen(false)
+              menuButtonRef.current?.focus()
+            }}
+          >
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
         <nav className="mobile-nav" aria-label="Mobile navigation">{renderLinks(true)}</nav>
         <a
           className="nav-cta mobile-cta"
